@@ -1,18 +1,19 @@
 package com.treason;
 
 import com.badlogic.gdx.ApplicationListener;  
-import com.badlogic.gdx.Gdx;  
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.OrthographicCamera;  
-import com.badlogic.gdx.graphics.g2d.SpriteBatch; 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.treason.ui.MainMenuScreen;
 
-public class TreasonGame implements ApplicationListener {
+public class TreasonGame extends Game implements ApplicationListener {
 	
     	public SpriteBatch spriteBatch;  
     	public OrthographicCamera camera;  
     
-        public void create () {
-        	
+    	@Override public void create () {
+			// TODO Auto-generated method stub
+			setScreen(new MainMenuScreen(this));
         }
 
         public void render () {

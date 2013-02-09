@@ -11,11 +11,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.treason.TreasonGame;
 
-public class MainMenuScreen extends AbstractScreen<TreasonDesktop> implements Screen {
+public class MainMenuScreen extends AbstractScreen<TreasonGame> implements Screen {
 	final Label label;
 
-	public MainMenuScreen(final TreasonDesktop game) {
-		super(game);
+	public MainMenuScreen(final TreasonGame treasonGame) {
+		super(treasonGame);
 		label = new Label("", skin);
 		final TextField nameField = new TextField("", skin);
 		nameField.setMessageText("<name>");
