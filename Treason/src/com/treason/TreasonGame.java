@@ -6,7 +6,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.treason.ui.MainMenuScreen;
 
-public class TreasonGame extends Game implements ApplicationListener {
+public class TreasonGame extends Game{
+//implements ApplicationListener {
 	
     	public SpriteBatch spriteBatch;  
     	public OrthographicCamera camera;  
@@ -16,18 +17,20 @@ public class TreasonGame extends Game implements ApplicationListener {
 			setScreen(new MainMenuScreen(this));
         }
 
-        public void render () {
-        }
-
-        public void resize (int width, int height) {
-        }
-
-        public void pause () {
-        }
-
-        public void resume () {
-        }
-
-        public void dispose () {
-        }
+//        public void render () 
+//        {
+//
+//        }
+//
+//        public void resize (int width, int height) {
+//        }
+//
+//        public void pause () {
+//        }
+//
+//        public void resume () {
+//        }
+//
+//        public void dispose () {
+//        }
 }

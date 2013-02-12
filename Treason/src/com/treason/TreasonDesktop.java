@@ -1,4 +1,4 @@
-package com.treason.desktop;
+package com.treason;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -7,7 +7,7 @@ import com.treason.ui.MainMenuScreen;
 
 public class TreasonDesktop extends Game {
         public static void main (String[] args) {
-                new LwjglApplication(new TreasonGame(), "Game", 1280, 720, false);
+                new LwjglApplication(new TreasonGame(), "Treason", 1280, 720, false);
         }
 
 		@Override
