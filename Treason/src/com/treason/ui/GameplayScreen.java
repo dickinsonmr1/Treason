@@ -14,6 +14,15 @@ public class GameplayScreen extends AbstractScreen
 {
 	TextureRegion textureRegion;
 	TextureRegion energyBar;
+	TextureRegion building;
+	TextureRegion light;
+	TextureRegion chestClosed;
+	TextureRegion water;
+	TextureRegion gold;
+	TextureRegion gemBlue;
+	TextureRegion gemGreen;
+	TextureRegion gemOrange;
+	
 	SpriteBatch batch;
 	
 	//TextureRegion tile;
@@ -42,6 +51,7 @@ public class GameplayScreen extends AbstractScreen
 		
 		//this.tile = new TextureRegion(new Texture(Gdx.files.internal("data/tile.png")), 0, 0, 20, 20);
 		Texture bobTexture = new Texture(Gdx.files.internal("data/textures/bob.png"));
+		
 		TextureRegion[] split = new TextureRegion(bobTexture).split(20, 20)[0];
 		TextureRegion[] mirror = new TextureRegion(bobTexture).split(20, 20)[0];
 		for (TextureRegion region : mirror)
@@ -64,7 +74,17 @@ public class GameplayScreen extends AbstractScreen
 		//map = new Map();
 		//renderer = new MapRenderer(map);
 		//controlRenderer = new OnscreenControlRenderer(map);
-		textureRegion = new TextureRegion(new Texture(Gdx.files.internal("data/textures/tile.png")), 0, 0, 1280, 720);
+		textureRegion = new TextureRegion(new Texture(Gdx.files.internal("data/textures/mockup.jpg")), 0, 0, 512, 512);
+		building = new TextureRegion(new Texture(Gdx.files.internal("data/textures/building.png")), 0, 0, 256, 256);
+		light = new TextureRegion(new Texture(Gdx.files.internal("data/textures/lightred.png")), 0, 0, 256, 256);
+		water = new TextureRegion(new Texture(Gdx.files.internal("data/textures/water.png")), 0, 0, 512, 512);
+		chestClosed = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/chest closed.png")), 0, 0, 256, 256);
+		gold = new TextureRegion(new Texture(Gdx.files.internal("data/textures/gold.png")), 0, 0, 64, 64);
+		
+		gemBlue = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Blue.png")), 0, 0, 128, 128);
+		gemGreen = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Green.png")), 0, 0, 128, 128);
+		gemOrange = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Orange.png")), 0, 0, 128, 128);
+		
 		//energyBar = new TextureRegion(new Texture(Gdx.files.internal("data/textures/energyBar.png")), 0, 0, 256, 256);
 		batch = new SpriteBatch();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1280, 720);
@@ -75,7 +95,15 @@ public class GameplayScreen extends AbstractScreen
 		delta = Math.min(0.06f, Gdx.graphics.getDeltaTime());
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();
+		batch.draw(water, 0, 0, 1280, 720);
 		batch.draw(textureRegion, 0, 0);
+		batch.draw(building, 100, 100);
+		batch.draw(light, 400, 0);
+		batch.draw(gold, 500, 100);
+		batch.draw(chestClosed, 600, 200, 64, 64);
+		batch.draw(gemBlue, 600, 300, 32, 32);
+		batch.draw(gemGreen, 600, 400, 32, 32);
+		batch.draw(gemOrange, 600, 500, 32, 32);
 		//batch.draw(energyBar, 100, 100);
 		
 		int state = JUMP;
@@ -111,11 +139,19 @@ public class GameplayScreen extends AbstractScreen
 				
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
 			anim = bobLeft;
-			pos.x--;
+			pos.x-=3;
 		}
 		if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
 			anim = bobRight;
-			pos.x++;
+			pos.x+=3;
+		}
+		if (Gdx.input.isKeyPressed(Keys.UP)) {
+			anim = bobLeft;
+			pos.y+=3;
+		}
+		if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+			anim = bobRight;
+			pos.y-=3;
 		}
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			anim = bobJumpRight;
