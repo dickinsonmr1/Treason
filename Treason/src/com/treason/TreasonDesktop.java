@@ -7,7 +7,7 @@ import com.treason.ui.MainMenuScreen;
 
 public class TreasonDesktop extends Game {
         public static void main (String[] args) {
-                new LwjglApplication(new TreasonGame(), "Treason", 1280, 720, false);
+                new LwjglApplication(new TreasonGame(), "Treason", 960, 640, false);
         }
 
 		@Override

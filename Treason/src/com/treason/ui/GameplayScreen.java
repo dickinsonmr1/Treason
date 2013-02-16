@@ -1,7 +1,11 @@
 package com.treason.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -9,8 +13,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.treason.TreasonGame;
+import com.treason.character.Character;
 
-public class GameplayScreen extends AbstractScreen
+public class GameplayScreen extends AbstractScreen implements InputProcessor
 {
 	TextureRegion textureRegion;
 	TextureRegion energyBar;
@@ -22,6 +27,12 @@ public class GameplayScreen extends AbstractScreen
 	TextureRegion gemBlue;
 	TextureRegion gemGreen;
 	TextureRegion gemOrange;
+	TextureRegion characterBoy;
+	TextureRegion tree;
+	TextureRegion selectGlow;
+	
+	TextureRegion healthBar;
+	TextureRegion healthBarOutline;
 	
 	SpriteBatch batch;
 	
@@ -45,9 +56,15 @@ public class GameplayScreen extends AbstractScreen
 	
 	Vector2 pos = new Vector2();
 	
+	List<Character> characters;
+	
+	boolean buttonPressed = false;
+	
 	public GameplayScreen(TreasonGame game) {
 		super(game);
 		// TODO Auto-generated constructor stub
+		
+		Gdx.input.setInputProcessor(this);
 		
 		//this.tile = new TextureRegion(new Texture(Gdx.files.internal("data/tile.png")), 0, 0, 20, 20);
 		Texture bobTexture = new Texture(Gdx.files.internal("data/textures/bob.png"));
@@ -65,8 +82,19 @@ public class GameplayScreen extends AbstractScreen
 		bobIdleLeft = new Animation(0.5f, mirror[0], mirror[4]);
 		bobDead = new Animation(0.2f, split[0]);	
 		
-		pos.x = 100;
-		pos.y = 100;
+
+		
+		characters = new ArrayList<Character>();
+		
+		Vector2 characterPos = new Vector2();
+		//characterPos.x = 100; characterPos.y = 100;
+		characters.add(new Character(new Vector2(100, 200)));
+		
+		//characterPos.x = 200; characterPos.y = 100;
+		characters.add(new Character(new Vector2(300, 300)));
+		
+		//characterPos.x = 300; characterPos.y = 100;
+		characters.add(new Character(new Vector2(500, 400)));
 	}
 
 	@Override
@@ -85,9 +113,17 @@ public class GameplayScreen extends AbstractScreen
 		gemGreen = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Green.png")), 0, 0, 128, 128);
 		gemOrange = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Orange.png")), 0, 0, 128, 128);
 		
+		characterBoy = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/character boy.png")), 0, 0, 128, 128);
+		tree = new TextureRegion(new Texture(Gdx.files.internal("data/textures/tree.png")), 0, 0, 64, 64);
+		
+		healthBar = new TextureRegion(new Texture(Gdx.files.internal("data/textures/healthbar.png")), 0, 0, 128, 128);
+		healthBarOutline = new TextureRegion(new Texture(Gdx.files.internal("data/textures/healthbaroutline.png")), 0, 0, 128, 128);
+		
+		selectGlow = new TextureRegion(new Texture(Gdx.files.internal("data/textures/selectGlow.png")), 0, 0, 128, 128);
+		
 		//energyBar = new TextureRegion(new Texture(Gdx.files.internal("data/textures/energyBar.png")), 0, 0, 256, 256);
 		batch = new SpriteBatch();
-		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1280, 720);
+		batch.getProjectionMatrix().setToOrtho2D(0, 0, 960, 640);
 	}
 
 	@Override
@@ -96,14 +132,16 @@ public class GameplayScreen extends AbstractScreen
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();
 		batch.draw(water, 0, 0, 1280, 720);
-		batch.draw(textureRegion, 0, 0);
+		//batch.draw(textureRegion, 0, 0);
 		batch.draw(building, 100, 100);
 		batch.draw(light, 400, 0);
 		batch.draw(gold, 500, 100);
 		batch.draw(chestClosed, 600, 200, 64, 64);
-		batch.draw(gemBlue, 600, 300, 32, 32);
-		batch.draw(gemGreen, 600, 400, 32, 32);
-		batch.draw(gemOrange, 600, 500, 32, 32);
+		batch.draw(gemBlue, 600, 300, 64, 64);
+		batch.draw(gemGreen, 600, 400, 64, 64);
+		batch.draw(gemOrange, 600, 500, 64, 64);
+		batch.draw(tree, 300, 300, 64, 64);
+
 		//batch.draw(energyBar, 100, 100);
 		
 		int state = JUMP;
@@ -136,7 +174,7 @@ public class GameplayScreen extends AbstractScreen
 //			anim = dying;
 //			loop = false;
 //		}
-				
+
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
 			anim = bobLeft;
 			pos.x-=3;
@@ -161,8 +199,27 @@ public class GameplayScreen extends AbstractScreen
 //			anim = bobLeft;
 //		}
 
-		batch.draw(anim.getKeyFrame(0, false), pos.x, pos.y, 48, 48);
+		Vector2 cursorPos = new Vector2(Gdx.input.getX(), 640-Gdx.input.getY());
 
+		//batch.draw(anim.getKeyFrame(0, false), pos.x, pos.y, 48, 48);
+		
+		for(Character character : this.characters)
+		{
+			character.Update();
+			
+			batch.draw(characterBoy, character.pos.x + 32, character.pos.y + 32, 64, 64);
+			batch.draw(healthBarOutline, character.pos.x, character.pos.y + 40, 128, 128);
+			batch.draw(healthBar, character.pos.x, character.pos.y + 40, 80, 128);
+			if(character.isSelected)
+			{
+				batch.draw(selectGlow, character.pos.x, character.pos.y, 128, 128);
+			}
+		}
+
+		if(this.buttonPressed)
+		{
+			//batch.draw(selectGlow, cursorPos.x-64, cursorPos.y-64, 128, 128);
+		}
 		
 		batch.end();
 
@@ -179,6 +236,8 @@ public class GameplayScreen extends AbstractScreen
 //		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
 //			game.setScreen(new MainMenu(game));
 //		}
+		
+		buttonPressed = false;
 	}
 
 	@Override
@@ -186,5 +245,74 @@ public class GameplayScreen extends AbstractScreen
 		Gdx.app.debug("Cubocy", "dispose game screen");
 //		renderer.dispose();
 //		controlRenderer.dispose();
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		//this.buttonPressed = true;
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		this.buttonPressed = true;
+		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
+		
+		
+		for(Character character : this.characters)
+		{
+			Vector2 characterCenterPos = new Vector2(character.pos.x + 64, character.pos.y + 64);
+			//if(Math.abs(screenX - (character.pos.x + 64)) < 32
+			//	&& Math.abs((640-screenY) - (character.pos.y + 64)) < 32)
+			if(touchPos.dst(characterCenterPos) < 32)
+			{
+				character.isSelected = !character.isSelected;
+			}
+
+			if(character.isSelected)
+			{
+				character.SetDestination(touchPos);
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		this.buttonPressed = true;
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
