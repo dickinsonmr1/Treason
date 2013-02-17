@@ -28,8 +28,10 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	TextureRegion gemGreen;
 	TextureRegion gemOrange;
 	TextureRegion characterBoy;
+	TextureRegion characterEvilGirl;
 	TextureRegion tree;
 	TextureRegion selectGlow;
+	TextureRegion star;
 	
 	TextureRegion healthBar;
 	TextureRegion healthBarOutline;
@@ -57,8 +59,10 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	Vector2 pos = new Vector2();
 	
 	List<Character> characters;
+	List<Character> enemies;
 	
 	boolean buttonPressed = false;
+	Vector2 targetPos = new Vector2();
 	
 	public GameplayScreen(TreasonGame game) {
 		super(game);
@@ -85,6 +89,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 
 		
 		characters = new ArrayList<Character>();
+		enemies = new ArrayList<Character>();
 		
 		Vector2 characterPos = new Vector2();
 		//characterPos.x = 100; characterPos.y = 100;
@@ -95,6 +100,10 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		
 		//characterPos.x = 300; characterPos.y = 100;
 		characters.add(new Character(new Vector2(500, 400)));
+		
+		enemies.add(new Character(new Vector2(500, 100)));
+		enemies.add(new Character(new Vector2(500, 200)));
+		enemies.add(new Character(new Vector2(500, 300)));
 	}
 
 	@Override
@@ -105,7 +114,9 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		textureRegion = new TextureRegion(new Texture(Gdx.files.internal("data/textures/mockup.jpg")), 0, 0, 512, 512);
 		building = new TextureRegion(new Texture(Gdx.files.internal("data/textures/building.png")), 0, 0, 256, 256);
 		light = new TextureRegion(new Texture(Gdx.files.internal("data/textures/lightred.png")), 0, 0, 256, 256);
-		water = new TextureRegion(new Texture(Gdx.files.internal("data/textures/water.png")), 0, 0, 512, 512);
+		//water = new TextureRegion(new Texture(Gdx.files.internal("data/textures/water.png")), 0, 0, 512, 512);
+		//water = new TextureRegion(new Texture(Gdx.files.internal("data/textures/grass2.jpg")), 0, 0, 512, 512);
+		water = new TextureRegion(new Texture(Gdx.files.internal("data/textures/amazonia2048.jpg")), 0, 0, 2048, 2048);
 		chestClosed = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/chest closed.png")), 0, 0, 256, 256);
 		gold = new TextureRegion(new Texture(Gdx.files.internal("data/textures/gold.png")), 0, 0, 64, 64);
 		
@@ -114,6 +125,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		gemOrange = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Orange.png")), 0, 0, 128, 128);
 		
 		characterBoy = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/character boy.png")), 0, 0, 128, 128);
+		characterEvilGirl = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/character horn girl.png")), 0, 0, 128, 128);
 		tree = new TextureRegion(new Texture(Gdx.files.internal("data/textures/tree.png")), 0, 0, 64, 64);
 		
 		healthBar = new TextureRegion(new Texture(Gdx.files.internal("data/textures/healthbar.png")), 0, 0, 128, 128);
@@ -121,6 +133,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		
 		selectGlow = new TextureRegion(new Texture(Gdx.files.internal("data/textures/selectGlow.png")), 0, 0, 128, 128);
 		
+		star = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/star.png")), 0, 0, 128, 128);
 		//energyBar = new TextureRegion(new Texture(Gdx.files.internal("data/textures/energyBar.png")), 0, 0, 256, 256);
 		batch = new SpriteBatch();
 		batch.getProjectionMatrix().setToOrtho2D(0, 0, 960, 640);
@@ -131,9 +144,9 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		delta = Math.min(0.06f, Gdx.graphics.getDeltaTime());
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(water, 0, 0, 1280, 720);
+		batch.draw(water, 0, 0, 2048, 2048);
 		//batch.draw(textureRegion, 0, 0);
-		batch.draw(building, 100, 100);
+		batch.draw(building, 300, 200);
 		batch.draw(light, 400, 0);
 		batch.draw(gold, 500, 100);
 		batch.draw(chestClosed, 600, 200, 64, 64);
@@ -208,18 +221,32 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 			character.Update();
 			
 			batch.draw(characterBoy, character.pos.x + 32, character.pos.y + 32, 64, 64);
-			batch.draw(healthBarOutline, character.pos.x, character.pos.y + 40, 128, 128);
-			batch.draw(healthBar, character.pos.x, character.pos.y + 40, 80, 128);
+			if(character.isSelected)
+			{
+				batch.draw(healthBarOutline, character.pos.x, character.pos.y + 40, 128, 128);
+				batch.draw(healthBar, character.pos.x, character.pos.y + 40, 80, 128);
+			}
 			if(character.isSelected)
 			{
 				batch.draw(selectGlow, character.pos.x, character.pos.y, 128, 128);
 			}
+			if(character.isTalkable)
+			{
+				batch.draw(light, character.pos.x-64, character.pos.y, 256, 256);
+			}
+		}
+		
+		for(Character enemy : this.enemies)
+		{
+			batch.draw(characterEvilGirl, enemy.pos.x + 32, enemy.pos.y + 32, 64, 64);
 		}
 
 		if(this.buttonPressed)
 		{
-			//batch.draw(selectGlow, cursorPos.x-64, cursorPos.y-64, 128, 128);
+			batch.draw(star, cursorPos.x-64, cursorPos.y-64, 128, 128);
 		}
+		
+		batch.draw(star, targetPos.x-64, targetPos.y-64, 128, 128);
 		
 		batch.end();
 
@@ -267,17 +294,30 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		//this.buttonPressed = true;
+		this.buttonPressed = true;
 		// TODO Auto-generated method stub
+		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
+		
+		for(Character character : this.characters)
+		{
+			Vector2 characterCenterPos = new Vector2(character.pos.x + 64, character.pos.y + 64);
+			//if(Math.abs(screenX - (character.pos.x + 64)) < 32
+			//	&& Math.abs((640-screenY) - (character.pos.y + 64)) < 32)
+			if(touchPos.dst(characterCenterPos) < 32 && !character.isDraggable)
+			{
+				character.isDraggable = true;
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		this.buttonPressed = true;
+		//buttonPressed = true;
 		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
 		
-		
+		boolean isAnyoneSelected = false;
+
 		for(Character character : this.characters)
 		{
 			Vector2 characterCenterPos = new Vector2(character.pos.x + 64, character.pos.y + 64);
@@ -285,13 +325,32 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 			//	&& Math.abs((640-screenY) - (character.pos.y + 64)) < 32)
 			if(touchPos.dst(characterCenterPos) < 32)
 			{
+				isAnyoneSelected = true;
+				break;
+			}
+		}
+		
+		for(Character character : this.characters)
+		{
+			Vector2 characterCenterPos = new Vector2(character.pos.x + 64, character.pos.y + 64);
+			//if(Math.abs(screenX - (character.pos.x + 64)) < 32
+			//	&& Math.abs((640-screenY) - (character.pos.y + 64)) < 32)
+			if(touchPos.dst(characterCenterPos) < 32 && !character.isTalkable)
+			{
 				character.isSelected = !character.isSelected;
 			}
 
-			if(character.isSelected)
+			if(character.isSelected && !isAnyoneSelected)
 			{
-				character.SetDestination(touchPos);
+				character.SetDestination(new Vector2(touchPos.x - 64, touchPos.y - 64));
+				character.isSelected = false;				
 			}
+			
+			character.isDraggable = false;
+		}
+		if(!isAnyoneSelected)
+		{
+			this.targetPos = touchPos.cpy();
 		}
 		// TODO Auto-generated method stub
 		return false;
@@ -300,6 +359,27 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		this.buttonPressed = true;
+		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
+		
+		for(Character character : this.characters)
+		{
+			Vector2 characterCenterPos = new Vector2(character.pos.x + 64, character.pos.y + 64);
+			//if(Math.abs(screenX - (character.pos.x + 64)) < 32
+			//	&& Math.abs((640-screenY) - (character.pos.y + 64)) < 32)
+			if(touchPos.dst(characterCenterPos) > 32 && character.isDraggable)
+			{
+				character.isSelected = true;
+				character.isTalkable = false;
+			}
+			else if (touchPos.dst(characterCenterPos) < 32 && !character.isDraggable)
+			{
+				character.isTalkable = true;
+			}
+			else
+			{
+				character.isTalkable = false;
+			}
+		}
 		// TODO Auto-generated method stub
 		return false;
 	}
