@@ -62,9 +62,9 @@ public class MainMenuScreen extends AbstractScreen {
 	
 	@Override
 	public void show () {
-		title = new TextureRegion(new Texture(Gdx.files.internal("data/textures/title.png")), 0, 0, 1280, 720);
+		title = new TextureRegion(new Texture(Gdx.files.internal("data/textures/mockup.jpg")), 0, 0, 512, 512);
 		batch = new SpriteBatch();
-		batch.getProjectionMatrix().setToOrtho2D(0, 0, 1280, 720);
+		batch.getProjectionMatrix().setToOrtho2D(0, 0, 960, 640);
 	}
 
 	@Override
