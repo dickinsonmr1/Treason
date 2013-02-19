@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.treason.TreasonGame;
 import com.treason.character.Character;
 
@@ -93,11 +94,12 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	
 	boolean buttonPressed = false;
 	Vector2 targetPos = new Vector2();
+	Stage stage;
 	
 	public GameplayScreen(TreasonGame game) {
 		super(game);
 		// TODO Auto-generated constructor stub
-		
+		stage = new Stage();
 		Gdx.input.setInputProcessor(this);
 		
 		//this.tile = new TextureRegion(new Texture(Gdx.files.internal("data/tile.png")), 0, 0, 20, 20);
@@ -181,7 +183,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		batch.draw(water, 0, 0, 2048, 2048);
 		//batch.draw(textureRegion, 0, 0);
 		batch.draw(building, 300, 200);
-		batch.draw(light, 400, 0);
+		batch.draw(light, 700, 150);
 		batch.draw(gold, 500, 100);
 		batch.draw(chestClosed, 600, 200, 128, 128);
 		batch.draw(gemBlue, 600, 300, 64, 64);
