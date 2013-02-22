@@ -363,7 +363,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 				{
 					//public void Draw(SpriteBatch sb, float parentAlpha)
 					//{
-						
+					//	
 					//}
 				};
 				//starImage.set
