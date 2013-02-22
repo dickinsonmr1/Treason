@@ -340,17 +340,18 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		final Skin skin = new Skin();
 		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
 		skin.add("boy", new Texture("data/textures/planetcute/character boy.png"));
+		skin.add("star", new Texture("data/textures/planetcute/star.png"));
 
 		Image sourceImage = new Image(skin, "boy");
-		sourceImage.setBounds(50, 125, 100, 100);
+		sourceImage.setBounds(50, 125, 128, 128);
 		stage.addActor(sourceImage);
 
 		Image validTargetImage = new Image(skin, "boy");
-		validTargetImage.setBounds(200, 50, 100, 100);
+		validTargetImage.setBounds(200, 50, 128, 128);
 		stage.addActor(validTargetImage);
 
 		Image invalidTargetImage = new Image(skin, "boy");
-		invalidTargetImage.setBounds(200, 200, 100, 100);
+		invalidTargetImage.setBounds(200, 200, 128, 128);
 		stage.addActor(invalidTargetImage);
 		DragAndDrop dragAndDrop = new DragAndDrop();
 		dragAndDrop.addSource(new Source(sourceImage) {
@@ -358,14 +359,29 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 				Payload payload = new Payload();
 				payload.setObject("Some payload!");
 
-				payload.setDragActor(new Label("Some payload!", skin));
+				Image starImage = new Image(skin, "star")
+				{
+					//public void Draw(SpriteBatch sb, float parentAlpha)
+					//{
+						
+					//}
+				};
+				//starImage.set
+				starImage.setBounds(0, 0, 64, 64);
+				//starImage.setPosition(-32, -32);
+				starImage.setOrigin(200, 200);
+				starImage.setPosition(100, 100);
+				
+				
+				//payload.setDragActor(new Label("Drag this!", skin));
+				payload.setDragActor(starImage);				
 
-				Label validLabel = new Label("Some payload!", skin);
-				validLabel.setColor(0, 1, 0, 1);
+				Label validLabel = new Label("Attack!", skin);
+				validLabel.setColor(1, 1, 0, 1);
 				payload.setValidDragActor(validLabel);
 
-				Label invalidLabel = new Label("Some payload!", skin);
-				invalidLabel.setColor(1, 0, 0, 1);
+				Label invalidLabel = new Label("!!!!!!!!!!!!!", skin);
+				invalidLabel.setColor(1, 0, 1, 1);
 				payload.setInvalidDragActor(invalidLabel);
 
 				return payload;
@@ -387,7 +403,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		});
 		dragAndDrop.addTarget(new Target(invalidTargetImage) {
 			public boolean drag (Source source, Payload payload, float x, float y, int pointer) {
-				getActor().setColor(Color.RED);
+				getActor().setColor(Color.YELLOW);
 				return false;
 			}
 
