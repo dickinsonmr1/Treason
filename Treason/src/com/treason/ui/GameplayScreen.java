@@ -6,13 +6,25 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Payload;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Source;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.treason.TreasonGame;
 import com.treason.character.Character;
 
@@ -99,8 +111,10 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	public GameplayScreen(TreasonGame game) {
 		super(game);
 		// TODO Auto-generated constructor stub
-		stage = new Stage();
+		//stage = new Stage();
 		Gdx.input.setInputProcessor(this);
+		
+		this.createStage();
 		
 		//this.tile = new TextureRegion(new Texture(Gdx.files.internal("data/tile.png")), 0, 0, 20, 20);
 		Texture bobTexture = new Texture(Gdx.files.internal("data/textures/bob.png"));
@@ -296,6 +310,10 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		batch.draw(star, targetPos.x-32, targetPos.y-32, 64, 64);
 		
 		batch.end();
+		
+		stage.act(Gdx.graphics.getDeltaTime());
+		stage.draw();
+		Table.drawDebug(stage);
 
 //		map.update(delta);
 //		Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
@@ -312,6 +330,82 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 //		}
 		
 		buttonPressed = false;
+	}
+	
+	private void createStage()
+	{
+		stage = new Stage();
+		Gdx.input.setInputProcessor(stage);
+
+		final Skin skin = new Skin();
+		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
+		skin.add("boy", new Texture("data/textures/planetcute/character boy.png"));
+
+		Image sourceImage = new Image(skin, "boy");
+		sourceImage.setBounds(50, 125, 100, 100);
+		stage.addActor(sourceImage);
+
+		Image validTargetImage = new Image(skin, "boy");
+		validTargetImage.setBounds(200, 50, 100, 100);
+		stage.addActor(validTargetImage);
+
+		Image invalidTargetImage = new Image(skin, "boy");
+		invalidTargetImage.setBounds(200, 200, 100, 100);
+		stage.addActor(invalidTargetImage);
+		DragAndDrop dragAndDrop = new DragAndDrop();
+		dragAndDrop.addSource(new Source(sourceImage) {
+			public Payload dragStart (InputEvent event, float x, float y, int pointer) {
+				Payload payload = new Payload();
+				payload.setObject("Some payload!");
+
+				payload.setDragActor(new Label("Some payload!", skin));
+
+				Label validLabel = new Label("Some payload!", skin);
+				validLabel.setColor(0, 1, 0, 1);
+				payload.setValidDragActor(validLabel);
+
+				Label invalidLabel = new Label("Some payload!", skin);
+				invalidLabel.setColor(1, 0, 0, 1);
+				payload.setInvalidDragActor(invalidLabel);
+
+				return payload;
+			}
+		});
+		dragAndDrop.addTarget(new Target(validTargetImage) {
+			public boolean drag (Source source, Payload payload, float x, float y, int pointer) {
+				getActor().setColor(Color.GREEN);
+				return true;
+			}
+
+			public void reset (Source source, Payload payload) {
+				getActor().setColor(Color.WHITE);
+			}
+
+			public void drop (Source source, Payload payload, float x, float y, int pointer) {
+				System.out.println("Accepted: " + payload.getObject() + " " + x + ", " + y);
+			}
+		});
+		dragAndDrop.addTarget(new Target(invalidTargetImage) {
+			public boolean drag (Source source, Payload payload, float x, float y, int pointer) {
+				getActor().setColor(Color.RED);
+				return false;
+			}
+
+			public void reset (Source source, Payload payload) {
+				getActor().setColor(Color.WHITE);
+			}
+
+			public void drop (Source source, Payload payload, float x, float y, int pointer) {
+			}
+		});
+	}
+	
+	public void resize (int width, int height) {
+		stage.setViewport(width, height, true);
+	}
+
+	public boolean needsGL20 () {
+		return false;
 	}
 
 	@Override
