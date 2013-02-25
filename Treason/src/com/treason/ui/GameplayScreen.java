@@ -341,17 +341,22 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		skin.add("default", new LabelStyle(new BitmapFont(), Color.WHITE));
 		skin.add("boy", new Texture("data/textures/planetcute/character boy.png"));
 		skin.add("star", new Texture("data/textures/planetcute/star.png"));
+		skin.add("light", new Texture("data/textures/light.png"));
 
+		Image light = new Image(skin, "light");
+		light.setBounds(500, 300, 256, 256);
+		stage.addActor(light);
+		
 		Image sourceImage = new Image(skin, "boy");
-		sourceImage.setBounds(50, 125, 128, 128);
+		sourceImage.setBounds(50, 125, 64, 64);
 		stage.addActor(sourceImage);
 
 		Image validTargetImage = new Image(skin, "boy");
-		validTargetImage.setBounds(200, 50, 128, 128);
+		validTargetImage.setBounds(200, 50, 64, 64);
 		stage.addActor(validTargetImage);
 
 		Image invalidTargetImage = new Image(skin, "boy");
-		invalidTargetImage.setBounds(200, 200, 128, 128);
+		invalidTargetImage.setBounds(200, 200, 64, 64);
 		stage.addActor(invalidTargetImage);
 		DragAndDrop dragAndDrop = new DragAndDrop();
 		dragAndDrop.addSource(new Source(sourceImage) {
@@ -367,10 +372,10 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 					//}
 				};
 				//starImage.set
-				starImage.setBounds(0, 0, 64, 64);
+				starImage.setBounds(-64, -64, 64, 64);
 				//starImage.setPosition(-32, -32);
-				starImage.setOrigin(200, 200);
-				starImage.setPosition(100, 100);
+				//starImage.setOrigin(200, 200);
+				//starImage.setPosition(100, 100);
 				
 				
 				//payload.setDragActor(new Label("Drag this!", skin));
