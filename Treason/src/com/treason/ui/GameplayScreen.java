@@ -2,6 +2,7 @@ package com.treason.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -27,6 +28,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Source;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.treason.TreasonGame;
 import com.treason.character.Character;
+import com.treason.character.ExitPortal;
+import com.treason.character.GoldPile;
 
 public class GameplayScreen extends AbstractScreen implements InputProcessor
 {
@@ -52,6 +55,8 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	TextureRegion healthBarOutline;
 	
 	SpriteBatch batch;
+	BitmapFont font;
+	CharSequence str = "Hello World!";
 	
 	//TextureRegion tile;
 	Animation bobLeft;
@@ -75,6 +80,8 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	
 	List<Character> characters;
 	List<Character> enemies;
+	List<GoldPile> goldPiles;
+	ExitPortal exitPortal;
 	
 	boolean dragInitiated = false;
 	
@@ -105,6 +112,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	}
 	
 	boolean buttonPressed = false;
+	boolean drawDestinationStar = false;
 	Vector2 targetPos = new Vector2();
 	Stage stage;
 	
@@ -114,7 +122,9 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		//stage = new Stage();
 		Gdx.input.setInputProcessor(this);
 		
-		this.createStage();
+		 font = new BitmapFont(Gdx.files.internal("data/fonts/default.fnt"),
+		         Gdx.files.internal("data/fonts/default.png"), false);
+		//this.createStage();
 		
 		//this.tile = new TextureRegion(new Texture(Gdx.files.internal("data/tile.png")), 0, 0, 20, 20);
 		Texture bobTexture = new Texture(Gdx.files.internal("data/textures/bob.png"));
@@ -132,10 +142,9 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		bobIdleLeft = new Animation(0.5f, mirror[0], mirror[4]);
 		bobDead = new Animation(0.2f, split[0]);	
 		
-
-		
 		characters = new ArrayList<Character>();
 		enemies = new ArrayList<Character>();
+		goldPiles = new ArrayList<GoldPile>();
 		
 		//Vector2 characterPos = new Vector2();
 		//characterPos.x = 100; characterPos.y = 100;
@@ -150,6 +159,12 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		enemies.add(new Character(new Vector2(500, 100)));
 		enemies.add(new Character(new Vector2(500, 200)));
 		enemies.add(new Character(new Vector2(500, 300)));
+		
+		this.exitPortal = new ExitPortal(new Vector2(700, 400), 5);
+		
+		goldPiles.add(new GoldPile(new Vector2(175, 275)));
+		goldPiles.add(new GoldPile(new Vector2(333, 66)));
+		
 	}
 
 	@Override
@@ -167,9 +182,9 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		chestClosed = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/chest closed.png")), 0, 0, 256, 256);
 		gold = new TextureRegion(new Texture(Gdx.files.internal("data/textures/gold.png")), 0, 0, 64, 64);
 		
-		gemBlue = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Blue.png")), 0, 0, 128, 128);
-		gemGreen = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Green.png")), 0, 0, 128, 128);
-		gemOrange = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Orange.png")), 0, 0, 128, 128);
+		//gemBlue = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Blue.png")), 0, 0, 128, 128);
+		//gemGreen = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Green.png")), 0, 0, 128, 128);
+		//gemOrange = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/Gem Orange.png")), 0, 0, 128, 128);
 		
 		characterBoy = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/character boy.png")), 0, 0, 128, 128);
 		characterEvilGirl = new TextureRegion(new Texture(Gdx.files.internal("data/textures/planetcute/character horn girl.png")), 0, 0, 128, 128);
@@ -197,12 +212,12 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		batch.draw(water, 0, 0, 2048, 2048);
 		//batch.draw(textureRegion, 0, 0);
 		batch.draw(building, 300, 200);
-		batch.draw(light, 700, 150);
+		//batch.draw(light, 700, 150);
 		batch.draw(gold, 500, 100);
 		batch.draw(chestClosed, 600, 200, 128, 128);
-		batch.draw(gemBlue, 600, 300, 64, 64);
-		batch.draw(gemGreen, 600, 400, 64, 64);
-		batch.draw(gemOrange, 600, 500, 64, 64);
+		//batch.draw(gemBlue, 600, 300, 64, 64);
+		//batch.draw(gemGreen, 600, 400, 64, 64);
+		//batch.draw(gemOrange, 600, 500, 64, 64);
 		batch.draw(tree, 300, 300, 64, 64);
 		batch.draw(heart, 450, 450, 64, 64);
 
@@ -267,6 +282,24 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 
 		//batch.draw(anim.getKeyFrame(0, false), pos.x, pos.y, 48, 48);
 		
+		batch.draw(light, this.exitPortal.pos.x - 256, this.exitPortal.pos.y - 256, 512, 512);
+		font.setColor(1.0f, 0.7f, 0.7f, 1.0f); // tint font blue
+		
+		
+		for(GoldPile goldPile : this.goldPiles)
+		{
+			batch.draw(gold, goldPile.pos.x + 32, goldPile.pos.y + 32, 64, 64);
+		}
+		
+		for(Character enemy : this.enemies)
+		{
+			batch.draw(characterEvilGirl, enemy.pos.x + 32, enemy.pos.y + 32, 64, 64);
+			if(enemy.isTalkable)
+			{
+				batch.draw(selectGlowRed, enemy.pos.x, enemy.pos.y, 128, 128);
+			}
+		}
+		
 		for(Character character : this.characters)
 		{
 			character.Update();
@@ -283,19 +316,16 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 				batch.draw(light, character.pos.x-64, character.pos.y, 256, 256);
 			}
 		}
+			
+		// portal font
+		String str2 = Integer.toString(this.exitPortal.GetNumberAccepted()) + " / " + Integer.toString(this.exitPortal.GetNumberRequired()); 
+		font.draw(batch, str2, this.exitPortal.pos.x-128-12, this.exitPortal.pos.y + 96);		
 		
-		for(Character enemy : this.enemies)
+		
+		
+		if(this.drawDestinationStar)// && this.GetSelectedCharacters().size() > 0)
 		{
-			batch.draw(characterEvilGirl, enemy.pos.x + 32, enemy.pos.y + 32, 64, 64);
-			if(enemy.isTalkable)
-			{
-				batch.draw(selectGlowRed, enemy.pos.x, enemy.pos.y, 128, 128);
-			}
-		}
-
-		if(this.buttonPressed)// && this.GetSelectedCharacters().size() > 0)
-		{
-			batch.draw(star, cursorPos.x-64, cursorPos.y-64, 128, 128);
+			batch.draw(star, cursorPos.x-32, cursorPos.y-32, 64, 64);
 		}
 		else
 		{
@@ -307,13 +337,14 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 			}
 		}
 		
-		batch.draw(star, targetPos.x-32, targetPos.y-32, 64, 64);
+		//batch.draw(star, targetPos.x-32, targetPos.y-32, 64, 64);
+		
 		
 		batch.end();
 		
-		stage.act(Gdx.graphics.getDeltaTime());
-		stage.draw();
-		Table.drawDebug(stage);
+		//stage.act(Gdx.graphics.getDeltaTime());
+		//stage.draw();
+		//Table.drawDebug(stage);
 
 //		map.update(delta);
 //		Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
@@ -342,7 +373,15 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		skin.add("boy", new Texture("data/textures/planetcute/character boy.png"));
 		skin.add("star", new Texture("data/textures/planetcute/star.png"));
 		skin.add("light", new Texture("data/textures/light.png"));
+		skin.add("healthBar", new Texture("data/textures/healthbar.png"));
+		skin.add("healthBarOutline", new Texture("data/textures/healthbaroutline.png"));
+		//skin.add(name, resource)
 
+		//healthBar = new TextureRegion(new Texture(Gdx.files.internal("data/textures/healthbar.png")), 0, 0, 128, 128);
+		//healthBarOutline = new TextureRegion(new Texture(Gdx.files.internal("data/textures/healthbaroutline.png")), 0, 0, 128, 128);		
+		//selectGlow = new TextureRegion(new Texture(Gdx.files.internal("data/textures/selectGlow.png")), 0, 0, 128, 128);
+		//selectGlowRed = new TextureRegion(new Texture(Gdx.files.internal("data/textures/selectGlowRed.png")), 0, 0, 128, 128);
+		
 		Image light = new Image(skin, "light");
 		light.setBounds(500, 300, 256, 256);
 		stage.addActor(light);
@@ -366,10 +405,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 
 				Image starImage = new Image(skin, "star")
 				{
-					//public void Draw(SpriteBatch sb, float parentAlpha)
-					//{
-					//	
-					//}
+
 				};
 				//starImage.set
 				starImage.setBounds(-64, -64, 64, 64);
@@ -417,12 +453,13 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 			}
 
 			public void drop (Source source, Payload payload, float x, float y, int pointer) {
+				System.out.println("Not accepted: " + payload.getObject() + " " + x + ", " + y);
 			}
 		});
 	}
 	
 	public void resize (int width, int height) {
-		stage.setViewport(width, height, true);
+		//stage.setViewport(width, height, true);
 	}
 
 	public boolean needsGL20 () {
@@ -458,6 +495,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		//this.buttonPressed = true;
 		this.dragInitiated = false;
+		this.drawDestinationStar = false;
 		// TODO Auto-generated method stub
 		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
 		
@@ -477,11 +515,14 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		this.dragInitiated = false;
+		//this.drawDestinationStar = false;
+		
 		//buttonPressed = true;
 		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
 		
 		boolean isAnyoneSelected = false;
-
+	  
+		
 		for(Character character : this.characters)
 		{
 			Vector2 characterCenterPos = new Vector2(character.pos.x + 64, character.pos.y + 64);
@@ -514,6 +555,8 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 					if(touchPos.dst(enemyCenterPos) < 32)// && !character.isTalkable)
 					{
 						enemy.isTalkable = true;
+						this.drawDestinationStar = true; 
+						//this.buttonPressed = false;
 					}
 				}
 			}
@@ -523,6 +566,8 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 		if(!isAnyoneSelected)// || this.GetSelectedCharacters().size() > 0)
 		{
 			this.targetPos = touchPos.cpy();
+			this.buttonPressed = false;
+			this.drawDestinationStar = false;  
 		}
 		// TODO Auto-generated method stub
 		return false;
@@ -532,6 +577,8 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		this.buttonPressed = true;
 		this.dragInitiated = true;
+		
+		boolean anySelected = false;
 		Vector2 touchPos = new Vector2(screenX, 640 - screenY);
 		
 		for(Character character : this.characters)
@@ -543,6 +590,7 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 			{
 				character.isSelected = true;
 				character.isTalkable = false;
+				anySelected = true;
 			}
 		}
 		for(Character character : this.GetSelectedCharacters())
@@ -569,6 +617,14 @@ public class GameplayScreen extends AbstractScreen implements InputProcessor
 					enemy.isTalkable = false;
 				}
 			}
+		}
+		if(!anySelected)
+		{
+			this.buttonPressed = false;
+		}
+		else
+		{
+			this.drawDestinationStar = true;
 		}
 		// TODO Auto-generated method stub
 		return false;
